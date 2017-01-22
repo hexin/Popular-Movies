@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <item android:id="@+id/menu_settings_sorting"
+        android:icon="@drawable/sorting2"
+        android:title="@string/sorting_settings_title"
+        app:showAsAction="ifRoom">
+        <menu>
+            <item android:id="@+id/menu_settings_sorting_toprated"
+                android:title="@string/toprated_sorting_settings_title"
+                app:showAsAction="always"/>
+            <item android:id="@+id/menu_settings_sorting_mostpopular"
+                android:title="@string/mostpopular_sorting_settings_title"
+                app:showAsAction="always"/>
+        </menu>
+    </item>
+</menu>
