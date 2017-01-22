@@ -1,21 +1,16 @@
 package com.example.android.popularmovies;
 
-import android.accounts.NetworkErrorException;
 import android.net.Uri;
 import android.util.Log;
-
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.net.URLConnection;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Scanner;
 
@@ -29,9 +24,8 @@ public class MoviesApiUtils {
 
     public static List<Movie> fetchFirstPage(String apiKey, SortingMode sortingMode) throws MovieProvidingException {
         URL firstMoviesPageUrl = buildFirstMoviesPageUrl(apiKey, sortingMode);
-        String response = null;
         try {
-            response = getResponseFromHttpUrl(firstMoviesPageUrl);
+            String response = getResponseFromHttpUrl(firstMoviesPageUrl);
             return parseJsonToMovies(response);
         } catch (IOException | JSONException e) {
             Log.e(TAG, "Cannot receive correct movie data from api", e);

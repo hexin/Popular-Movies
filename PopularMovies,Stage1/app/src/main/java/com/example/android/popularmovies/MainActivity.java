@@ -23,9 +23,10 @@ public class MainActivity extends AppCompatActivity implements MoviesAdapter.Pos
 
     private RecyclerView mRecyclerView;
     private MoviesAdapter mMoviesAdapter;
-    private SortingMode currentSortingMode = SortingMode.TOP_RATED;
+    private SortingMode mCurrentSortingMode = SortingMode.TOP_RATED;
     private View mErrorView;
     private ProgressBar mProgressBar;
+    private Button mRefreshButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -37,8 +38,8 @@ public class MainActivity extends AppCompatActivity implements MoviesAdapter.Pos
         mRecyclerView.setLayoutManager(new GridLayoutManager(this, 2));
         mErrorView = findViewById(R.id.error_layout);
         mProgressBar = (ProgressBar) findViewById(R.id.progressbar);
-        Button refreshButton = (Button) findViewById(R.id.btn_refresh);
-        setOnRefreshClickListener(refreshButton);
+        mRefreshButton = (Button) findViewById(R.id.btn_refresh);
+        setOnRefreshClickListener(mRefreshButton);
         refreshMoviesFromApi();
     }
 
@@ -70,14 +71,14 @@ public class MainActivity extends AppCompatActivity implements MoviesAdapter.Pos
         int itemId = item.getItemId();
         if (itemId == R.id.menu_settings_sorting) {
             MenuItem mostPopularMenuItem = item.getSubMenu().findItem(R.id.menu_settings_sorting_mostpopular);
-            mostPopularMenuItem.setEnabled(currentSortingMode != SortingMode.MOST_POPULAR);
+            mostPopularMenuItem.setEnabled(mCurrentSortingMode != SortingMode.MOST_POPULAR);
             MenuItem topRatedMenuItem = item.getSubMenu().findItem(R.id.menu_settings_sorting_toprated);
-            topRatedMenuItem.setEnabled(currentSortingMode != SortingMode.TOP_RATED);
+            topRatedMenuItem.setEnabled(mCurrentSortingMode != SortingMode.TOP_RATED);
         } else if (itemId == R.id.menu_settings_sorting_mostpopular) {
-            currentSortingMode = SortingMode.MOST_POPULAR;
+            mCurrentSortingMode = SortingMode.MOST_POPULAR;
             refreshMoviesFromApi();
         } else if (itemId == R.id.menu_settings_sorting_toprated) {
-            currentSortingMode = SortingMode.TOP_RATED;
+            mCurrentSortingMode = SortingMode.TOP_RATED;
             refreshMoviesFromApi();
         }
         return super.onOptionsItemSelected(item);
@@ -129,7 +130,7 @@ public class MainActivity extends AppCompatActivity implements MoviesAdapter.Pos
             }
             String apiKey = params[0];
             try {
-                return new MoviesResultHolder(MoviesApiUtils.fetchFirstPage(apiKey, currentSortingMode));
+                return new MoviesResultHolder(MoviesApiUtils.fetchFirstPage(apiKey, mCurrentSortingMode));
             } catch (MoviesApiUtils.MovieProvidingException e) {
                 return new MoviesResultHolder(e);
             }
