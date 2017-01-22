@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.AsyncTask;
+import android.os.Parcelable;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.GridLayoutManager;
@@ -19,28 +20,49 @@ import java.util.List;
 
 public class MainActivity extends AppCompatActivity implements MoviesAdapter.PosterOnClickHandler {
 
-    public static final String API_KEY = "";
+    private static final String API_KEY = "";
+    private static final String CURRENT_SORTING_MODE_KEY = "currentSortingMode";
+    private static final String LAYOUT_MANAGER_KEY = "layoutManager";
 
     private RecyclerView mRecyclerView;
     private MoviesAdapter mMoviesAdapter;
-    private SortingMode mCurrentSortingMode = SortingMode.TOP_RATED;
+    private SortingMode mCurrentSortingMode;
     private View mErrorView;
     private ProgressBar mProgressBar;
     private Button mRefreshButton;
+    private GridLayoutManager mLayoutManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_movies);
+        mCurrentSortingMode = createSortingModeIfNecessary(savedInstanceState);
 
         mRecyclerView = (RecyclerView) findViewById(R.id.recyclerview_movies);
         mRecyclerView.setAdapter(mMoviesAdapter = new MoviesAdapter(this));
-        mRecyclerView.setLayoutManager(new GridLayoutManager(this, 2));
+        mRecyclerView.setLayoutManager(mLayoutManager = new GridLayoutManager(this, 2));
+        restoreLayoutManagerStateIfNecessary(savedInstanceState);
+
         mErrorView = findViewById(R.id.error_layout);
         mProgressBar = (ProgressBar) findViewById(R.id.progressbar);
         mRefreshButton = (Button) findViewById(R.id.btn_refresh);
         setOnRefreshClickListener(mRefreshButton);
         refreshMoviesFromApi();
+    }
+
+    private void restoreLayoutManagerStateIfNecessary(Bundle savedInstanceState) {
+        if (savedInstanceState != null && savedInstanceState.containsKey(LAYOUT_MANAGER_KEY)) {
+            Parcelable parcelable = savedInstanceState.getParcelable(LAYOUT_MANAGER_KEY);
+            mLayoutManager.onRestoreInstanceState(parcelable);
+        }
+    }
+
+    private SortingMode createSortingModeIfNecessary(Bundle savedInstanceState) {
+        if (savedInstanceState == null || !savedInstanceState.containsKey(CURRENT_SORTING_MODE_KEY)) {
+            return SortingMode.TOP_RATED;
+        } else {
+            return (SortingMode) savedInstanceState.getSerializable(CURRENT_SORTING_MODE_KEY);
+        }
     }
 
     private void setOnRefreshClickListener(Button refreshButton) {
@@ -82,6 +104,13 @@ public class MainActivity extends AppCompatActivity implements MoviesAdapter.Pos
             refreshMoviesFromApi();
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putSerializable(CURRENT_SORTING_MODE_KEY, mCurrentSortingMode);
+        outState.putParcelable(LAYOUT_MANAGER_KEY, mLayoutManager.onSaveInstanceState());
     }
 
     @Override
