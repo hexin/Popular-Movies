@@ -6,12 +6,13 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:orientation="vertical">
+        android:orientation="vertical"
+        android:background="#D1C4E9">
 
         <FrameLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="@android:color/holo_purple">
+            android:background="#673AB7">
 
             <TextView
                 android:id="@+id/tv_title"
@@ -48,7 +49,7 @@
                     android:id="@+id/tv_details_date"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:textColor="@android:color/holo_blue_dark"
+                    android:textColor="#7E57C2"
                     android:textSize="22sp" />
 
                 <LinearLayout
@@ -69,6 +70,27 @@
                         android:paddingLeft="5dp"
                         android:textSize="20sp"
                         android:textStyle="bold" />
+                </LinearLayout>
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:paddingTop="15dp">
+
+                    <ImageView
+                        android:id="@+id/iv_details_favourites"
+                        android:layout_width="25dp"
+                        android:layout_height="25dp"
+                        android:src="@drawable/star" />
+
+                    <TextView
+                        android:id="@+id/tv_details_favourites"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:paddingLeft="5dp"
+                        android:textSize="20sp"
+                        android:textStyle="bold"
+                        android:text="Add to Favourites"/>
                 </LinearLayout>
             </LinearLayout>
         </LinearLayout>

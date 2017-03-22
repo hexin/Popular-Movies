@@ -50,6 +50,15 @@ public class MoviesAdapter extends RecyclerView.Adapter<MoviesAdapter.MovieViewH
         notifyDataSetChanged();
     }
 
+    public void updateMovieById(Movie toBeUpdatedMovie) {
+        for (Movie movie: this.movies) {
+            if (movie.getId() == toBeUpdatedMovie.getId()) {
+                movie.setFavourite(toBeUpdatedMovie.isFavourite());
+                return;
+            }
+        }
+    }
+
     class MovieViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
 
          private ImageView mPosterImageView;

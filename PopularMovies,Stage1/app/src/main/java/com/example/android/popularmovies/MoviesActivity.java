@@ -4,7 +4,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
-import android.os.AsyncTask;
 import android.os.Parcelable;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -18,11 +17,12 @@ import android.widget.ProgressBar;
 
 import java.util.List;
 
-public class MainActivity extends AppCompatActivity implements MoviesAdapter.PosterOnClickHandler {
+public class MoviesActivity extends AppCompatActivity implements MoviesAdapter.PosterOnClickHandler, LoadingMoviesActions {
 
     private static final String API_KEY = "";
     private static final String CURRENT_SORTING_MODE_KEY = "currentSortingMode";
     private static final String LAYOUT_MANAGER_KEY = "layoutManager";
+    private static final int REQUEST_CODE = 1;
 
     private RecyclerView mRecyclerView;
     private MoviesAdapter mMoviesAdapter;
@@ -48,6 +48,14 @@ public class MainActivity extends AppCompatActivity implements MoviesAdapter.Pos
         mRefreshButton = (Button) findViewById(R.id.btn_refresh);
         setOnRefreshClickListener(mRefreshButton);
         refreshMoviesFromApi();
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if(requestCode == REQUEST_CODE && resultCode == MovieDetailsActivity.RESULT_CODE_OK) {
+            Movie movie = data.getParcelableExtra(MovieDetailsActivity.EXTRA_MOVIE);
+            mMoviesAdapter.updateMovieById(movie);
+        }
     }
 
     private void restoreLayoutManagerStateIfNecessary(Bundle savedInstanceState) {
@@ -76,7 +84,7 @@ public class MainActivity extends AppCompatActivity implements MoviesAdapter.Pos
 
     private void refreshMoviesFromApi() {
         if (isOnline()) {
-            new MoviesListAsyncTask().execute(API_KEY);
+            new MoviesListAsyncTask(this, mCurrentSortingMode, new FavouritesMoviesFetcher(getContentResolver())).execute(API_KEY);
         } else {
             showError();
         }
@@ -117,7 +125,7 @@ public class MainActivity extends AppCompatActivity implements MoviesAdapter.Pos
     public void onPosterClick(Movie movie) {
         Intent intent = new Intent(this, MovieDetailsActivity.class);
         intent.putExtra(MovieDetailsActivity.EXTRA_MOVIE, movie);
-        startActivity(intent);
+        startActivityForResult(intent, REQUEST_CODE);
     }
 
     private void showError() {
@@ -145,56 +153,20 @@ public class MainActivity extends AppCompatActivity implements MoviesAdapter.Pos
         return netInfo != null && netInfo.isConnectedOrConnecting();
     }
 
-    private class MoviesListAsyncTask extends AsyncTask<String, Void, MoviesResultHolder> {
-
-        @Override
-        protected void onPreExecute() {
-            showProgressBar();
-        }
-
-        @Override
-        protected MoviesResultHolder doInBackground(String... params) {
-            if (params == null || params.length == 0) {
-                return null;
-            }
-            String apiKey = params[0];
-            try {
-                return new MoviesResultHolder(MoviesApiUtils.fetchFirstPage(apiKey, mCurrentSortingMode));
-            } catch (MoviesApiUtils.MovieProvidingException e) {
-                return new MoviesResultHolder(e);
-            }
-        }
-
-        @Override
-        protected void onPostExecute(MoviesResultHolder resultHolder) {
-            if (resultHolder.isError()) {
-                showError();
-            } else {
-                mMoviesAdapter.setMovies(resultHolder.getMovies());
-                showPosters();
-            }
-        }
+    @Override
+    public void loadingStarted() {
+        showProgressBar();
     }
 
-    private class MoviesResultHolder {
-
-        private Exception exception;
-        private List<Movie> movies;
-
-        public MoviesResultHolder(Exception exception) {
-            this.exception = exception;
-        }
-
-        public MoviesResultHolder(List<Movie> movies) {
-            this.movies = movies;
-        }
-
-        boolean isError() {
-            return exception != null;
-        }
-
-        public List<Movie> getMovies() {
-            return movies;
-        }
+    @Override
+    public void loadingCorrupted() {
+        showError();
     }
+
+    @Override
+    public void loadingFinished(List<Movie> movies) {
+        mMoviesAdapter.setMovies(movies);
+        showPosters();
+    }
+
 }

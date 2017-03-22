@@ -48,6 +48,7 @@ public class MoviesApiUtils {
                 .appendQueryParameter("api_key", apiKey)
                 .build();
         String moviesUriValue = moviesUri.toString();
+        Log.e(MoviesApiUtils.TAG, moviesUriValue);
         try {
             return new URL(moviesUriValue);
         } catch (MalformedURLException e) {
@@ -57,6 +58,7 @@ public class MoviesApiUtils {
     }
 
     private static List<Movie> parseJsonToMovies(String json) throws JSONException {
+        Log.e(MoviesApiUtils.TAG ,json);
         JSONObject jsonObject = new JSONObject(json);
         JSONArray results = jsonObject.getJSONArray("results");
         List<Movie> movies = new ArrayList<>(results.length());
@@ -68,6 +70,7 @@ public class MoviesApiUtils {
 
     private static Movie jsonObjectToMovie(JSONObject singleMovieJsonObject) throws JSONException {
         Movie movie = new Movie();
+        movie.setId(singleMovieJsonObject.getLong("id"));
         movie.setOriginalTitle(singleMovieJsonObject.getString("title"));
         movie.setPosterPath(singleMovieJsonObject.getString("poster_path"));
         movie.setOverview(singleMovieJsonObject.getString("overview"));

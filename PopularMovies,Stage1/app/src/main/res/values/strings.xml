@@ -5,4 +5,5 @@
     <string name="mostpopular_sorting_settings_title">By most popular</string>
     <string name="movies_error">Something bad happened, please check your network connection</string>
     <string name="try_again">Let\'s try again</string>
+    <string name="content_authority">com.example.android.popularmovies</string>
 </resources>
