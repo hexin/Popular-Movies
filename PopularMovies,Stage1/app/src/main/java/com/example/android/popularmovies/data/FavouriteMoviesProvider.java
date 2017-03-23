@@ -44,20 +44,6 @@ public class FavouriteMoviesProvider extends ContentProvider {
         Cursor cursor;
 
         switch (sUriMatcher.match(uri)) {
-            //TODO think ow should it work
-//            case CODE_FAVOURITE_MOVIES_WITH_ID: {
-//                String movieId = uri.getLastPathSegment();
-//                String[] selectionArguments = new String[]{movieId};
-//                cursor = mOpenHelper.getReadableDatabase().query(
-//                        FavouriteMoviesContract.FavouriteMoviesEntry.TABLE_NAME,
-//                        projection,
-//                        FavouriteMoviesContract.FavouriteMoviesEntry.COLUMN_MOVIE_ID + " = ? ",
-//                        selectionArguments,
-//                        null,
-//                        null,
-//                        sortOrder);
-//                break;
-//            }
             case CODE_FAVOURITE_MOVIES: {
                 cursor = mOpenHelper.getReadableDatabase().query(
                         FavouriteMoviesContract.FavouriteMoviesEntry.TABLE_NAME,
@@ -119,7 +105,7 @@ public class FavouriteMoviesProvider extends ContentProvider {
                 int affectedRowsAmount = mOpenHelper.getWritableDatabase()
                         .delete(FavouriteMoviesContract.FavouriteMoviesEntry.TABLE_NAME,
                                 selection, new String[]{id});
-                validateDeletedRowsAmount(affectedRowsAmount, "Failed to delete favourites movie row for id " + id + ", affected row were " + affectedRowsAmount);
+//                validateDeletedRowsAmount(affectedRowsAmount, "Failed to delete favourites movie row for id " + id + ", affected row were " + affectedRowsAmount);
                 getContext().getContentResolver().notifyChange(uri, null);
                 return affectedRowsAmount;
             default:
@@ -137,20 +123,6 @@ public class FavouriteMoviesProvider extends ContentProvider {
 
     @Override
     public int update(Uri uri, ContentValues values, String selection, String[] selectionArgs) {
-//        switch (sUriMatcher.match(uri)) {
-//            case CODE_FAVOURITE_MOVIES_WITH_ID:
-//                String id = uri.getLastPathSegment();
-//                int affectedRowsAmount = mOpenHelper.getWritableDatabase()
-//                        .update(FavouriteMoviesContract.FavouriteMoviesEntry.TABLE_NAME,
-//                                values, " _id = ? ", new String[]{id});
-//                if (affectedRowsAmount != 1) {
-//                    throw new android.database.SQLException("Failed to update favourites movie row for id " + id);
-//                }
-//                getContext().getContentResolver().notifyChange(uri, null);
-//                return affectedRowsAmount;
-//            default:
-//                throw new UnsupportedOperationException("Unknown uri: " + uri);
-//        }
         throw new UnsupportedOperationException("Update not supported for uri: " + uri);
     }
 }

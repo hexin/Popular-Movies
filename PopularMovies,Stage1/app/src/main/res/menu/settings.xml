@@ -13,6 +13,9 @@
             <item android:id="@+id/menu_settings_sorting_mostpopular"
                 android:title="@string/mostpopular_sorting_settings_title"
                 app:showAsAction="always"/>
+            <item android:id="@+id/menu_settings_sorting_favourite"
+                android:title="@string/favourite_sorting_settings_title"
+                app:showAsAction="always"/>
         </menu>
     </item>
 </menu>

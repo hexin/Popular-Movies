@@ -9,7 +9,7 @@ import com.example.android.popularmovies.data.FavouriteMoviesContract.FavouriteM
 public class FavouriteMoviesDBHelper extends SQLiteOpenHelper {
 
     public static final String DATABASE_NAME = "favouriteMovies.db";
-    private static final int DATABASE_VERSION = 1;
+    private static final int DATABASE_VERSION = 2;
 
     public FavouriteMoviesDBHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -20,7 +20,11 @@ public class FavouriteMoviesDBHelper extends SQLiteOpenHelper {
         final String SQL_CREATE_WEATHER_TABLE = "CREATE TABLE " + FavouriteMoviesEntry.TABLE_NAME + " (" +
                         FavouriteMoviesEntry._ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
                         FavouriteMoviesEntry.COLUMN_MOVIE_ID + " INTEGER NOT NULL," +
-                        FavouriteMoviesEntry.COLUMN_MOVIE_TITLE + " TEXT NOT NULL, " +
+                        FavouriteMoviesEntry.COLUMN_MOVIE_ORIGINAL_TITLE + " TEXT NOT NULL, " +
+                        FavouriteMoviesEntry.COLUMN_MOVIE_POSTER_PATH + " TEXT NOT NULL, " +
+                        FavouriteMoviesEntry.COLUMN_MOVIE_OVERVIEW + " TEXT NOT NULL, " +
+                        FavouriteMoviesEntry.COLUMN_MOVIE_RELEASE_DATE + " TEXT NOT NULL, " +
+                        FavouriteMoviesEntry.COLUMN_MOVIE_VOTE_AVG + " REAL NOT NULL, " +
                         " UNIQUE (" + FavouriteMoviesEntry.COLUMN_MOVIE_ID + ") ON CONFLICT REPLACE);";
         db.execSQL(SQL_CREATE_WEATHER_TABLE);
     }

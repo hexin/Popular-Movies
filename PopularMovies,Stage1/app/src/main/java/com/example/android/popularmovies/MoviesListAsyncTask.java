@@ -7,6 +7,7 @@ import com.google.common.base.Function;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Sets;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
@@ -35,10 +36,13 @@ class MoviesListAsyncTask extends AsyncTask<String, Void, ListResultHolder<Movie
         }
         String apiKey = params[0];
         try {
+            if (sortingMode == SortingMode.FAVOURITES) {
+                Set<Movie> movies = moviesFetcher.fetchAll();
+                return new ListResultHolder<>(new ArrayList<>(movies));
+            }
             List<Movie> movies = MoviesApiUtils.fetchFirstPage(apiKey, sortingMode);
-            Set<FavouriteMovie> favouriteMovies = moviesFetcher.fetchByIds(moviesToIds(movies));
+            Set<Movie> favouriteMovies = moviesFetcher.fetchByIds(moviesToIds(movies));
             ListResultHolder<Movie> moviesResultHolder = new ListResultHolder<>(setAsFavourite(movies, favouriteMovies));
-            logFavouriteMovies(favouriteMovies);//TODO remove
             return moviesResultHolder;
         } catch (MoviesApiUtils.MovieProvidingException e) {
             return new ListResultHolder<>(e);
@@ -65,18 +69,18 @@ class MoviesListAsyncTask extends AsyncTask<String, Void, ListResultHolder<Movie
         return Sets.newHashSet(ids);
     }
 
-    private Set<Long> favouriteMoviesToIds(Set<FavouriteMovie> favouriteMovies) {
-        Iterable<Long> ids = Iterables.transform(favouriteMovies, new Function<FavouriteMovie, Long>() {
+    private Set<Long> favouriteMoviesToIds(Set<Movie> favouriteMovies) {
+        Iterable<Long> ids = Iterables.transform(favouriteMovies, new Function<Movie, Long>() {
 
             @Override
-            public Long apply(FavouriteMovie input) {
+            public Long apply(Movie input) {
                 return input.getId();
             }
         });
         return Sets.newHashSet(ids);
     }
 
-    private List<Movie> setAsFavourite(List<Movie> movies, Set<FavouriteMovie> favouriteMovies) {
+    private List<Movie> setAsFavourite(List<Movie> movies, Set<Movie> favouriteMovies) {
         Set<Long> ids = favouriteMoviesToIds(favouriteMovies);
         for(Movie movie: movies) {
             if (ids.contains(movie.getId())) {
@@ -84,10 +88,5 @@ class MoviesListAsyncTask extends AsyncTask<String, Void, ListResultHolder<Movie
             }
         }
         return movies;
-    }
-
-    private void logFavouriteMovies(Set<FavouriteMovie> favouriteMovies) {
-        String toString = Arrays.toString(favouriteMovies.toArray());
-        Log.e(MoviesListAsyncTask.class.getSimpleName(), toString);
     }
 }

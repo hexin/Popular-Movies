@@ -1,8 +1,5 @@
 package com.example.android.popularmovies.videos;
 
-/**
- * Created by kacper on 23.03.17.
- */
 
 public class Video {
 

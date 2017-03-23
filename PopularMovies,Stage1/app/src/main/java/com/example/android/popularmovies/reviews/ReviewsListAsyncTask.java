@@ -9,10 +9,6 @@ import com.example.android.popularmovies.ListResultHolder;
 import java.util.Arrays;
 import java.util.List;
 
-/**
- * Created by kacper on 24.03.17.
- */
-
 public class ReviewsListAsyncTask extends AsyncTask<String, Void, ListResultHolder<Review>> {
 
     private final AsyncLoadingListActions<Review> loadingReviewsActions;

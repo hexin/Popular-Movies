@@ -19,14 +19,12 @@ public class FavouritesMoviesFetcher {
         this.contentResolver = contentResolver;
     }
 
-    public Set<FavouriteMovie> fetchAll() {
+    public Set<Movie> fetchAll() {
         Cursor cursor = contentResolver.query(FavouriteMoviesContract.FavouriteMoviesEntry.CONTENT_URI, null, null, null, null);
-        Set<FavouriteMovie> result = new HashSet<>();
+        Set<Movie> result = new HashSet<>();
         try {
             while (cursor.moveToNext()) {
-                long movieId = cursor.getLong(cursor.getColumnIndex(FavouriteMoviesContract.FavouriteMoviesEntry.COLUMN_MOVIE_ID));
-                String movieTitle = cursor.getString(cursor.getColumnIndex(FavouriteMoviesContract.FavouriteMoviesEntry.COLUMN_MOVIE_TITLE));
-                result.add(new FavouriteMovie(movieId, movieTitle));
+                result.add(cursorToMovie(cursor));
             }
         } finally {
             cursor.close();
@@ -34,13 +32,32 @@ public class FavouritesMoviesFetcher {
         return result;
     }
 
-    public Set<FavouriteMovie> fetchByIds(final Set<Long> ids) {
-        Set<FavouriteMovie> favouriteMovies = fetchAll();
+    private Movie cursorToMovie(Cursor cursor) {
+        long movieId = cursor.getLong(cursor.getColumnIndex(FavouriteMoviesContract.FavouriteMoviesEntry.COLUMN_MOVIE_ID));
+        String originalTitle = cursor.getString(cursor.getColumnIndex(FavouriteMoviesContract.FavouriteMoviesEntry.COLUMN_MOVIE_ORIGINAL_TITLE));
+        String posterPath = cursor.getString(cursor.getColumnIndex(FavouriteMoviesContract.FavouriteMoviesEntry.COLUMN_MOVIE_POSTER_PATH));
+        String overview = cursor.getString(cursor.getColumnIndex(FavouriteMoviesContract.FavouriteMoviesEntry.COLUMN_MOVIE_OVERVIEW));
+        String releaseDate = cursor.getString(cursor.getColumnIndex(FavouriteMoviesContract.FavouriteMoviesEntry.COLUMN_MOVIE_RELEASE_DATE));
+        double voteAverage = cursor.getDouble(cursor.getColumnIndex(FavouriteMoviesContract.FavouriteMoviesEntry.COLUMN_MOVIE_VOTE_AVG));
+        boolean favourite = true;
+        Movie movie = new Movie();
+        movie.setFavourite(favourite);
+        movie.setVoteAverage(voteAverage);
+        movie.setReleaseDate(releaseDate);
+        movie.setPosterPath(posterPath);
+        movie.setOverview(overview);
+        movie.setOriginalTitle(originalTitle);
+        movie.setId(movieId);
+        return movie;
+    }
+
+    public Set<Movie> fetchByIds(final Set<Long> ids) {
+        Set<Movie> favouriteMovies = fetchAll();
         return Sets.newHashSet(
                 Iterables.filter(favouriteMovies, new MovieIdsPredicate(ids)));
     }
 
-    static class MovieIdsPredicate implements Predicate<FavouriteMovie> {
+    static class MovieIdsPredicate implements Predicate<Movie> {
 
         private final Set<Long> ids;
 
@@ -49,7 +66,7 @@ public class FavouritesMoviesFetcher {
         }
 
         @Override
-        public boolean apply(FavouriteMovie input) {
+        public boolean apply(Movie input) {
             return ids.contains(input.getId());
         }
     }

@@ -17,10 +17,6 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Created by kacper on 23.03.17.
- */
-
 public class VideosApiUtils {
 
     private static final String TAG = VideosApiUtils.class.getSimpleName();

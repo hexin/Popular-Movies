@@ -14,16 +14,6 @@ import java.util.List;
 public class ReviewsAdapter extends RecyclerView.Adapter<ReviewsAdapter.ReviewViewHolder>{
 
     private List<Review> reviews;
-//    private ReviewsAdapter.ReviewOnClickHandler mReviewOnClickHandler;
-
-//    public ReviewsAdapter(ReviewsAdapter.ReviewOnClickHandler reviewOnClickHandler) {
-//        this(new ArrayList<Review>(), reviewOnClickHandler);
-//    }
-//
-//    public ReviewsAdapter(List<Review> reviews, ReviewsAdapter.ReviewOnClickHandler reviewOnClickHandler) {
-//        this.reviews = new ArrayList<>(reviews);
-//        this.mReviewOnClickHandler = reviewOnClickHandler;
-//    }
 
     public ReviewsAdapter(List<Review> reviews) {
         this.reviews = new ArrayList<>(reviews);
@@ -69,8 +59,7 @@ public class ReviewsAdapter extends RecyclerView.Adapter<ReviewsAdapter.ReviewVi
 
         @Override
         public void onClick(View v) {
-//            int adapterPosition = getAdapterPosition();
-//            mReviewOnClickHandler.onReviewClick(Reviews.get(adapterPosition));
+
         }
 
         private void bind(Review review) {

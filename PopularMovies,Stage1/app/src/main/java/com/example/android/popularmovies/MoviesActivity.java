@@ -103,11 +103,16 @@ public class MoviesActivity extends AppCompatActivity implements MoviesAdapter.P
             mostPopularMenuItem.setEnabled(mCurrentSortingMode != SortingMode.MOST_POPULAR);
             MenuItem topRatedMenuItem = item.getSubMenu().findItem(R.id.menu_settings_sorting_toprated);
             topRatedMenuItem.setEnabled(mCurrentSortingMode != SortingMode.TOP_RATED);
+            MenuItem favouriteMenuItem = item.getSubMenu().findItem(R.id.menu_settings_sorting_favourite);
+            favouriteMenuItem.setEnabled(mCurrentSortingMode != SortingMode.FAVOURITES);
         } else if (itemId == R.id.menu_settings_sorting_mostpopular) {
             mCurrentSortingMode = SortingMode.MOST_POPULAR;
             refreshMoviesFromApi();
         } else if (itemId == R.id.menu_settings_sorting_toprated) {
             mCurrentSortingMode = SortingMode.TOP_RATED;
+            refreshMoviesFromApi();
+        } else if (itemId == R.id.menu_settings_sorting_favourite) {
+            mCurrentSortingMode = SortingMode.FAVOURITES;
             refreshMoviesFromApi();
         }
         return super.onOptionsItemSelected(item);

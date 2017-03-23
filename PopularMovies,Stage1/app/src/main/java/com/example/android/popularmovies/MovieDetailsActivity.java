@@ -30,6 +30,7 @@
         public static final String EXTRA_MOVIE = "extra_movie";
         private static final String VIDEOS_LAYOUT_MANAGER_KEY = "videosLayoutManager";
         private static final String REVIEWS_LAYOUT_MANAGER_KEY = "reviewsLayoutManager";
+        private static final String MOVIE_KEY = "movie";
         public static final int RESULT_CODE_OK = 121;
 
         private TextView textView;
@@ -94,8 +95,6 @@
             mVideosRecyclerView.setAdapter(mVideosAdapter = new VideosAdapter(this));
             mVideosRecyclerView.setLayoutManager(mVideosLayoutManager = new LinearLayoutManager(this));
 
-
-
             mLoadingReviewsProgressBar = (ProgressBar) findViewById(R.id.progressbar_reviews_loading);
             mReviewsRecyclerView = (RecyclerView) findViewById(R.id.recyclerview_reviews);
             mReviewsRecyclerView.setAdapter(mReviewsAdapter = new ReviewsAdapter());
@@ -110,6 +109,8 @@
         public void onSaveInstanceState(Bundle outState) {
             super.onSaveInstanceState(outState);
             outState.putParcelable(VIDEOS_LAYOUT_MANAGER_KEY, mVideosLayoutManager.onSaveInstanceState());
+            outState.putParcelable(REVIEWS_LAYOUT_MANAGER_KEY, mReviewsLayoutManager.onSaveInstanceState());
+            outState.putParcelable(MOVIE_KEY, movie);
         }
 
         private void restoreLayoutManagerStateIfNecessary(Bundle savedInstanceState) {
@@ -120,9 +121,13 @@
                 Parcelable videosParcelable = savedInstanceState.getParcelable(VIDEOS_LAYOUT_MANAGER_KEY);
                 mVideosLayoutManager.onRestoreInstanceState(videosParcelable);
 
-            } else if (savedInstanceState.containsKey(REVIEWS_LAYOUT_MANAGER_KEY)){
+            }
+            if (savedInstanceState.containsKey(REVIEWS_LAYOUT_MANAGER_KEY)){
                 Parcelable reviewsParcelable = savedInstanceState.getParcelable(REVIEWS_LAYOUT_MANAGER_KEY);
                 mReviewsLayoutManager.onRestoreInstanceState(reviewsParcelable);
+            }
+            if (savedInstanceState.containsKey(MOVIE_KEY)){
+                movie = savedInstanceState.getParcelable(MOVIE_KEY);
             }
         }
 
@@ -192,15 +197,10 @@
             watchYoutubeVideo(video.getKey());
         }
 
-        public static void watchYoutubeVideo(String key){
-//            Intent appIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("vnd.youtube:" + id));
-//            Intent webIntent = new Intent(Intent.ACTION_VIEW,
-//                    Uri.parse("http://www.youtube.com/watch?v=" + id));
-//            try {
-//                startActivity(appIntent);
-//            } catch (ActivityNotFoundException ex) {
-//                startActivity(webIntent);
-//            }
+        private void watchYoutubeVideo(String key){
+            Intent webIntent = new Intent(Intent.ACTION_VIEW,
+                    Uri.parse("http://www.youtube.com/watch?v=" + key));
+                startActivity(webIntent);
         }
 
         private class FavouriteMovieUpdater {
@@ -208,7 +208,11 @@
             public void addToFavourites(Movie movie) {
                 ContentValues values = new ContentValues();
                 values.put(FavouriteMoviesContract.FavouriteMoviesEntry.COLUMN_MOVIE_ID, movie.getId());
-                values.put(FavouriteMoviesContract.FavouriteMoviesEntry.COLUMN_MOVIE_TITLE, movie.getOriginalTitle());
+                values.put(FavouriteMoviesContract.FavouriteMoviesEntry.COLUMN_MOVIE_ORIGINAL_TITLE, movie.getOriginalTitle());
+                values.put(FavouriteMoviesContract.FavouriteMoviesEntry.COLUMN_MOVIE_OVERVIEW, movie.getOverview());
+                values.put(FavouriteMoviesContract.FavouriteMoviesEntry.COLUMN_MOVIE_POSTER_PATH, movie.getPosterPath());
+                values.put(FavouriteMoviesContract.FavouriteMoviesEntry.COLUMN_MOVIE_RELEASE_DATE, movie.getReleaseDate());
+                values.put(FavouriteMoviesContract.FavouriteMoviesEntry.COLUMN_MOVIE_VOTE_AVG, movie.getVoteAverage());
                 getContentResolver().insert(FavouriteMoviesContract.FavouriteMoviesEntry.CONTENT_URI, values);
             }
 
