@@ -15,6 +15,9 @@
     import android.widget.TextView;
 
     import com.example.android.popularmovies.data.FavouriteMoviesContract;
+    import com.example.android.popularmovies.reviews.Review;
+    import com.example.android.popularmovies.reviews.ReviewsAdapter;
+    import com.example.android.popularmovies.reviews.ReviewsListAsyncTask;
     import com.example.android.popularmovies.videos.Video;
     import com.example.android.popularmovies.videos.VideosAdapter;
     import com.example.android.popularmovies.videos.VideosListAsyncTask;
@@ -25,7 +28,8 @@
     public class MovieDetailsActivity extends AppCompatActivity implements VideosAdapter.VideoOnClickHandler {
 
         public static final String EXTRA_MOVIE = "extra_movie";
-        private static final String LAYOUT_MANAGER_KEY = "layoutManager";
+        private static final String VIDEOS_LAYOUT_MANAGER_KEY = "videosLayoutManager";
+        private static final String REVIEWS_LAYOUT_MANAGER_KEY = "reviewsLayoutManager";
         public static final int RESULT_CODE_OK = 121;
 
         private TextView textView;
@@ -35,11 +39,15 @@
         private TextView mOverviewTextView;
         private ImageView mFavouriteMovieImageView;
         private Movie movie;
-        private RecyclerView mRecyclerView;
+        private RecyclerView mVideosRecyclerView;
         private VideosAdapter mVideosAdapter;
-        private LinearLayoutManager mLayoutManager;
-        private ProgressBar mProgressBar;
+        private LinearLayoutManager mVideosLayoutManager;
+        private ProgressBar mLoadingVideosProgressBar;
         private TextView favouritesTextView;
+        private RecyclerView mReviewsRecyclerView;
+        private ReviewsAdapter mReviewsAdapter;
+        private LinearLayoutManager mReviewsLayoutManager;
+        private ProgressBar mLoadingReviewsProgressBar;
 
 
         @Override
@@ -77,28 +85,44 @@
                 }
             });
 
-            mProgressBar = (ProgressBar) findViewById(R.id.progressbar);
+            mLoadingVideosProgressBar = (ProgressBar) findViewById(R.id.progressbar_videos_loading);
 
             mOverviewTextView = (TextView) findViewById(R.id.tv_details_overview);
             mOverviewTextView.setText(movie.getOverview());
 
-            mRecyclerView = (RecyclerView) findViewById(R.id.recyclerview_videos);
-            mRecyclerView.setAdapter(mVideosAdapter = new VideosAdapter(this));
-            mRecyclerView.setLayoutManager(mLayoutManager = new LinearLayoutManager(this));
+            mVideosRecyclerView = (RecyclerView) findViewById(R.id.recyclerview_videos);
+            mVideosRecyclerView.setAdapter(mVideosAdapter = new VideosAdapter(this));
+            mVideosRecyclerView.setLayoutManager(mVideosLayoutManager = new LinearLayoutManager(this));
+
+
+
+            mLoadingReviewsProgressBar = (ProgressBar) findViewById(R.id.progressbar_reviews_loading);
+            mReviewsRecyclerView = (RecyclerView) findViewById(R.id.recyclerview_reviews);
+            mReviewsRecyclerView.setAdapter(mReviewsAdapter = new ReviewsAdapter());
+            mReviewsRecyclerView.setLayoutManager(mReviewsLayoutManager = new LinearLayoutManager(this));
+
             restoreLayoutManagerStateIfNecessary(savedInstanceState);
             new VideosListAsyncTask(new VideoLoadingActions()).execute(ThemoviedbApiKey.API_KEY, String.valueOf(movie.getId()));
+            new ReviewsListAsyncTask(new ReviewLoadingActions()).execute(ThemoviedbApiKey.API_KEY, String.valueOf(movie.getId()));
         }
 
         @Override
         public void onSaveInstanceState(Bundle outState) {
             super.onSaveInstanceState(outState);
-            outState.putParcelable(LAYOUT_MANAGER_KEY, mLayoutManager.onSaveInstanceState());
+            outState.putParcelable(VIDEOS_LAYOUT_MANAGER_KEY, mVideosLayoutManager.onSaveInstanceState());
         }
 
         private void restoreLayoutManagerStateIfNecessary(Bundle savedInstanceState) {
-            if (savedInstanceState != null && savedInstanceState.containsKey(LAYOUT_MANAGER_KEY)) {
-                Parcelable parcelable = savedInstanceState.getParcelable(LAYOUT_MANAGER_KEY);
-                mLayoutManager.onRestoreInstanceState(parcelable);
+            if (savedInstanceState == null) {
+                return;
+            }
+            if (savedInstanceState.containsKey(VIDEOS_LAYOUT_MANAGER_KEY)) {
+                Parcelable videosParcelable = savedInstanceState.getParcelable(VIDEOS_LAYOUT_MANAGER_KEY);
+                mVideosLayoutManager.onRestoreInstanceState(videosParcelable);
+
+            } else if (savedInstanceState.containsKey(REVIEWS_LAYOUT_MANAGER_KEY)){
+                Parcelable reviewsParcelable = savedInstanceState.getParcelable(REVIEWS_LAYOUT_MANAGER_KEY);
+                mReviewsLayoutManager.onRestoreInstanceState(reviewsParcelable);
             }
         }
 
@@ -129,20 +153,38 @@
 
         private void showVideosLoadingError() {
 //            mErrorView.setVisibility(View.VISIBLE);
-            mRecyclerView.setVisibility(View.GONE);
-            mProgressBar.setVisibility(View.GONE);
+            mVideosRecyclerView.setVisibility(View.GONE);
+            mLoadingVideosProgressBar.setVisibility(View.GONE);
         }
 
         private void showLoadedVideos() {
 //            mErrorView.setVisibility(View.GONE);
-            mRecyclerView.setVisibility(View.VISIBLE);
-            mProgressBar.setVisibility(View.GONE);
+            mVideosRecyclerView.setVisibility(View.VISIBLE);
+            mLoadingVideosProgressBar.setVisibility(View.GONE);
         }
 
         private void showVideosLoadingProgressBar() {
 //            mErrorView.setVisibility(View.GONE);
-            mRecyclerView.setVisibility(View.GONE);
-            mProgressBar.setVisibility(View.VISIBLE);
+            mVideosRecyclerView.setVisibility(View.GONE);
+            mLoadingVideosProgressBar.setVisibility(View.VISIBLE);
+        }
+
+        private void showLoadedReviews() {
+//            mErrorView.setVisibility(View.VISIBLE);
+            mReviewsRecyclerView.setVisibility(View.VISIBLE);
+            mLoadingReviewsProgressBar.setVisibility(View.GONE);
+        }
+
+        private void showReviewLoadingError() {
+//            mErrorView.setVisibility(View.GONE);
+            mReviewsRecyclerView.setVisibility(View.GONE);
+            mLoadingReviewsProgressBar.setVisibility(View.GONE);
+        }
+
+        private void showReviewLoadingProgressBar() {
+//            mErrorView.setVisibility(View.GONE);
+            mReviewsRecyclerView.setVisibility(View.GONE);
+            mLoadingReviewsProgressBar.setVisibility(View.VISIBLE);
         }
 
         @Override
@@ -194,6 +236,25 @@
             public void loadingFinished(List<Video> results) {
                 mVideosAdapter.setVideos(results);
                 showLoadedVideos();
+            }
+        }
+
+        private class ReviewLoadingActions implements AsyncLoadingListActions<Review> {
+
+            @Override
+            public void loadingStarted() {
+                showReviewLoadingProgressBar();
+            }
+
+            @Override
+            public void loadingCorrupted() {
+                showReviewLoadingError();
+            }
+
+            @Override
+            public void loadingFinished(List<Review> results) {
+                mReviewsAdapter.setReviews(results);
+                showLoadedReviews();
             }
         }
     }
