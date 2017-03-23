@@ -57,6 +57,7 @@
                     movie.setFavourite(!movie.isFavourite());
                     setMovieResult(movie);
                     setFavouriteImageView(movie);
+                    changeFavoriteMovie(movie);
                 }
             });
 
@@ -79,12 +80,17 @@
         }
 
         private void setFavouriteImageView(Movie movie) {
+            int favouriteDrawableResId = movie.isFavourite()
+                    ? R.drawable.ic_power_pink_80px
+                    : R.drawable.ic_power_grey_80px;
+            mFavouriteMovieImageView.setImageResource(favouriteDrawableResId);
+        }
+
+        private void changeFavoriteMovie(Movie movie) {
             FavouriteMovieUpdater favouriteMovieUpdater = new FavouriteMovieUpdater();
             if (movie.isFavourite()) {
-                mFavouriteMovieImageView.setImageResource(R.drawable.ic_power_pink_80px);
                 favouriteMovieUpdater.addToFavourites(movie);
             } else {
-                mFavouriteMovieImageView.setImageResource(R.drawable.ic_power_grey_80px);
                 favouriteMovieUpdater.removeFromFavourites(movie);
             }
         }
