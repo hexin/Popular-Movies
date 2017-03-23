@@ -17,9 +17,8 @@ import android.widget.ProgressBar;
 
 import java.util.List;
 
-public class MoviesActivity extends AppCompatActivity implements MoviesAdapter.PosterOnClickHandler, LoadingMoviesActions {
+public class MoviesActivity extends AppCompatActivity implements MoviesAdapter.PosterOnClickHandler, AsyncLoadingListActions<Movie> {
 
-    private static final String API_KEY = "";
     private static final String CURRENT_SORTING_MODE_KEY = "currentSortingMode";
     private static final String LAYOUT_MANAGER_KEY = "layoutManager";
     private static final int REQUEST_CODE = 1;
@@ -84,7 +83,7 @@ public class MoviesActivity extends AppCompatActivity implements MoviesAdapter.P
 
     private void refreshMoviesFromApi() {
         if (isOnline()) {
-            new MoviesListAsyncTask(this, mCurrentSortingMode, new FavouritesMoviesFetcher(getContentResolver())).execute(API_KEY);
+            new MoviesListAsyncTask(this, mCurrentSortingMode, new FavouritesMoviesFetcher(getContentResolver())).execute(ThemoviedbApiKey.API_KEY);
         } else {
             showError();
         }

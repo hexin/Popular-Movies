@@ -2,11 +2,11 @@ package com.example.android.popularmovies;
 
 import java.util.List;
 
-interface LoadingMoviesActions {
+public interface AsyncLoadingListActions<T> {
 
     void loadingStarted();
 
     void loadingCorrupted();
 
-    void loadingFinished(List<Movie> movies);
+    void loadingFinished(List<T> results);
 }

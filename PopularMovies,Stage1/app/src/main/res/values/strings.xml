@@ -6,4 +6,6 @@
     <string name="movies_error">Something bad happened, please check your network connection</string>
     <string name="try_again">Let\'s try again</string>
     <string name="content_authority">com.example.android.popularmovies</string>
+    <string name="remove_from_favourites">Remove from favourites</string>
+    <string name="add_to_favourites">Add to favourite</string>
 </resources>

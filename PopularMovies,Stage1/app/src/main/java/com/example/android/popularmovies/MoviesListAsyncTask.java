@@ -11,25 +11,25 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 
-class MoviesListAsyncTask extends AsyncTask<String, Void, MoviesResultHolder> {
+class MoviesListAsyncTask extends AsyncTask<String, Void, ListResultHolder<Movie>> {
 
-    private final LoadingMoviesActions loadingMoviesActions;
+    private final AsyncLoadingListActions<Movie> asyncLoadingListActions;
     private final SortingMode sortingMode;
     private final FavouritesMoviesFetcher moviesFetcher;
 
-    public MoviesListAsyncTask(LoadingMoviesActions loadingMoviesActions, SortingMode sortingMode, FavouritesMoviesFetcher moviesFetcher) {
-        this.loadingMoviesActions = loadingMoviesActions;
+    public MoviesListAsyncTask(AsyncLoadingListActions<Movie> asyncLoadingListActions, SortingMode sortingMode, FavouritesMoviesFetcher moviesFetcher) {
+        this.asyncLoadingListActions = asyncLoadingListActions;
         this.sortingMode = sortingMode;
         this.moviesFetcher = moviesFetcher;
     }
 
     @Override
     protected void onPreExecute() {
-        loadingMoviesActions.loadingStarted();
+        asyncLoadingListActions.loadingStarted();
     }
 
     @Override
-    protected MoviesResultHolder doInBackground(String... params) {
+    protected ListResultHolder<Movie> doInBackground(String... params) {
         if (params == null || params.length == 0) {
             return null;
         }
@@ -37,20 +37,20 @@ class MoviesListAsyncTask extends AsyncTask<String, Void, MoviesResultHolder> {
         try {
             List<Movie> movies = MoviesApiUtils.fetchFirstPage(apiKey, sortingMode);
             Set<FavouriteMovie> favouriteMovies = moviesFetcher.fetchByIds(moviesToIds(movies));
-            MoviesResultHolder moviesResultHolder = new MoviesResultHolder(setAsFavourite(movies, favouriteMovies));
+            ListResultHolder<Movie> moviesResultHolder = new ListResultHolder<>(setAsFavourite(movies, favouriteMovies));
             logFavouriteMovies(favouriteMovies);//TODO remove
             return moviesResultHolder;
         } catch (MoviesApiUtils.MovieProvidingException e) {
-            return new MoviesResultHolder(e);
+            return new ListResultHolder<>(e);
         }
     }
 
     @Override
-    protected void onPostExecute(MoviesResultHolder resultHolder) {
+    protected void onPostExecute(ListResultHolder<Movie> resultHolder) {
         if (resultHolder.isError()) {
-            loadingMoviesActions.loadingCorrupted();
+            asyncLoadingListActions.loadingCorrupted();
         } else {
-            loadingMoviesActions.loadingFinished(resultHolder.getMovies());
+            asyncLoadingListActions.loadingFinished(resultHolder.results());
         }
     }
 
